@@ -59,6 +59,8 @@ public:
 	inline uint32_t getCycles() { return cycles; }
 	inline void printDebug() {
 		XPCC_LOG_DEBUG << "Cycles: " << cycles << xpcc::endl;
+		const uint32_t us = cycles / 72;
+		XPCC_LOG_DEBUG << "        => ~" << us << "us" << xpcc::endl;
 		XPCC_LOG_DEBUG << "Time:  ~" << milliseconds << "ms" << xpcc::endl;
 	}
 	inline void stopAndPrintDebug() { stop(); printDebug(); }
