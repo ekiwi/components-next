@@ -1,4 +1,4 @@
-#include "../../xpcc/examples/stm32f3_discovery/stm32f3_discovery.hpp"
+#include "../../xpcc/develop/examples/stm32f3_discovery/stm32f3_discovery.hpp"
 #include <xpcc/debug/logger.hpp>
 
 // ----------------------------------------------------------------------------
