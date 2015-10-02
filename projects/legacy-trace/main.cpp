@@ -37,55 +37,13 @@ namespace component
 	Receiver receiver(robot::component::RECEIVER, &dispatcher);
 }
 
-#include <xpcc/utils/arithmetic_traits.hpp>
-
-class Tracer {
-public:
-	ALWAYS_INLINE  void start() {
-		startTime = xpcc::Clock::now();
-		startCount = xpcc::cortex::CycleCounter::getCount();
-	}
-	ALWAYS_INLINE  void stop() {
-		const uint32_t stopCount = xpcc::cortex::CycleCounter::getCount();
-		const xpcc::Timestamp stopTime = xpcc::Clock::now();
-		if(stopCount > startCount) {
-			cycles = stopCount - startCount;
-		} else {
-			cycles = xpcc::ArithmeticTraits<uint32_t>::max - startCount + stopCount;
-		}
-		cycles -= constant_cycle_offset;
-		milliseconds = (stopTime - startTime).getTime();
-	}
-	inline uint32_t getCycles() { return cycles; }
-	inline void printDebug() {
-		XPCC_LOG_DEBUG << "Cycles: " << cycles << xpcc::endl;
-		const uint32_t us = cycles / 72;
-		XPCC_LOG_DEBUG << "        => ~" << us << "us" << xpcc::endl;
-		XPCC_LOG_DEBUG << "Time:  ~" << milliseconds << "ms" << xpcc::endl;
-	}
-	inline void stopAndPrintDebug() { stop(); printDebug(); }
-	// TODO: is this actually accurate?
-	inline void calibrate() {
-		constant_cycle_offset = 0;
-		start();
-		stop();
-		constant_cycle_offset = cycles;
-	}
-	inline uint32_t getConstantCycleOffset() { return constant_cycle_offset; }
-private:
-	uint32_t startCount = 0;
-	xpcc::Timestamp startTime;
-	uint32_t cycles = 0;
-	uint32_t milliseconds = 0;
-	uint32_t constant_cycle_offset = 0;
-};
-
+#include "stop_and_print_tracer.hpp"
 
 // ----------------------------------------------------------------------------
 MAIN_FUNCTION
 {
 	Board::initialize();
-	Tracer tracer;
+	StopAndPrintTracer tracer;
 	tracer.calibrate();
 
 	// initialize Uart2 for XPCC_LOG_
@@ -96,32 +54,28 @@ MAIN_FUNCTION
 
 	XPCC_LOG_INFO << xpcc::endl << xpcc::endl;
 	XPCC_LOG_INFO << XPCC_FILE_INFO << "XPCC Dispatcher CycleCounter" << xpcc::endl;
+	XPCC_LOG_DEBUG << tracer.getConstantCycleOffset() << xpcc::endl;
 
 	//
-	XPCC_LOG_INFO << "dispatcher.update() nothing to do" << xpcc::endl;
-	tracer.start();
+	TRACE_LINE(tracer, "dispatcher.update() nothing to do");
 	dispatcher.update();
-	tracer.stopAndPrintDebug();
 
+	//tracer.trace("send get position");
+	TRACE_LINE(tracer, "send get position");
 	component::sender.sendGetPosition();
 
 	// dispatch GET_POSITION message
-	XPCC_LOG_INFO << "dispatcher.update() message to send" << xpcc::endl;
-	tracer.start();
+	TRACE_LINE(tracer, "dispatcher.update() message to send");
 	dispatcher.update();
-	tracer.stopAndPrintDebug();
 
 	// dispatch GET_POSITION answer
-	XPCC_LOG_INFO << "dispatcher.update() answer to send" << xpcc::endl;
-	tracer.start();
+	TRACE_LINE(tracer, "dispatcher.update() answer to send" );
 	dispatcher.update();
-	tracer.stopAndPrintDebug();
 
 	// call GET_POSITION as funcion
-	XPCC_LOG_INFO << "calling get position as a function" << xpcc::endl;
-	tracer.start();
+	TRACE_LINE(tracer, "calling get position as a function");
 	volatile auto position = component::receiver.functionGetPosition();
-	tracer.stopAndPrintDebug();
+	tracer.trace();
 
 	while (1)
 	{
