@@ -25,8 +25,8 @@
 #define STOP_AND_PRINT_TRACE_HPP
 
 #define TRACER_FILE_INFO STRINGIFY(BASENAME) "(" STRINGIFY(__LINE__) ")"
-#define TRACE_LINE(tracer, description) tracer.trace(TRACER_FILE_INFO, description)
-#define TRACE_END(tracer) tracer.trace(TRACER_FILE_INFO)
+#define TRACE_LINE(description) StopAndPrintTracer::defaultTracer.trace(TRACER_FILE_INFO, description)
+#define TRACE_END() StopAndPrintTracer::defaultTracer.trace(TRACER_FILE_INFO)
 
 class StopAndPrintTracer {
 public:
@@ -48,6 +48,8 @@ private:
 	const char* name = nullptr;
 	const char* description = nullptr;
 	bool silent = false;
+public:
+	static StopAndPrintTracer defaultTracer;
 };
 
 #endif // STOP_AND_PRINT_TRACE_HPP

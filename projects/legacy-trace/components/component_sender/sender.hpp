@@ -33,12 +33,13 @@
 
 #include <xpcc/communication/xpcc/abstract_component.hpp>
 #include <xpcc/processing/timer.hpp>
+#include <xpcc/processing/protothread.hpp>
 
 #include "communication/packets.hpp"
 
 namespace component
 {
-class Sender : public xpcc::AbstractComponent
+class Sender : public xpcc::AbstractComponent, private xpcc::pt::Protothread
 {
 public:
 	Sender(uint8_t id, xpcc::Dispatcher *communication);
@@ -46,6 +47,7 @@ public:
 	void sendGetPosition();
 	void sendSetPosition();
 	void sendGetAndSetPosition();
+	bool run();
 
 private:
 	void
@@ -53,6 +55,8 @@ private:
 			const robot::packet::Position *parameter);
 
 	xpcc::ResponseCallback positionCallback;
+	bool positionValid = false;
+	robot::packet::Position position;
 };
 }
 

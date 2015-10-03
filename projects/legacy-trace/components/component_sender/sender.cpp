@@ -38,6 +38,7 @@
 #include "communication/packets.hpp"
 
 #include "sender.hpp"
+#include "../stop_and_print_tracer.hpp"
 
 // ----------------------------------------------------------------------------
 component::Sender::Sender(uint8_t id, xpcc::Dispatcher *communication) :
@@ -51,10 +52,28 @@ void
 component::Sender::getPositionCallback(const xpcc::Header&,
 		const robot::packet::Position *parameter)
 {
-	//XPCC_LOG_INFO << XPCC_FILE_INFO
-	//		<< "get position callback: x=" << parameter->x
-	//		<< ", y=" << parameter->y << xpcc::endl;
+	TRACE_LINE("PositionCallback");
+	position = *parameter;
+	positionValid = true;
 }
+
+// ----------------------------------------------------------------------------
+bool
+component::Sender::run()
+{
+	PT_BEGIN();
+	TRACE_LINE("Going to call GET_POSITION action.");
+	this->callAction(
+			robot::component::RECEIVER,
+			robot::action::GET_POSITION,
+			positionCallback);
+	TRACE_LINE("Called GET_POSITION action.");
+	PT_WAIT_UNTIL(positionValid);
+	TRACE_LINE("Position is valid.");
+
+	PT_END();
+}
+
 
 // ----------------------------------------------------------------------------
 

@@ -101,3 +101,6 @@ void StopAndPrintTracer::calibrate()
 	name = oldName;
 	description = oldDescription;
 }
+
+StopAndPrintTracer
+StopAndPrintTracer::defaultTracer;

@@ -54,33 +54,11 @@ MAIN_FUNCTION
 
 	XPCC_LOG_INFO << xpcc::endl << xpcc::endl;
 	XPCC_LOG_INFO << XPCC_FILE_INFO << "XPCC Dispatcher CycleCounter" << xpcc::endl;
-	XPCC_LOG_DEBUG << tracer.getConstantCycleOffset() << xpcc::endl;
-
-	//
-	TRACE_LINE(tracer, "dispatcher.update() nothing to do");
-	dispatcher.update();
-
-	//tracer.trace("send get position");
-	TRACE_LINE(tracer, "send get position");
-	component::sender.sendGetPosition();
-
-	// dispatch GET_POSITION message
-	TRACE_LINE(tracer, "dispatcher.update() message to send");
-	dispatcher.update();
-
-	// dispatch GET_POSITION answer
-	TRACE_LINE(tracer, "dispatcher.update() answer to send" );
-	dispatcher.update();
-
-	// call GET_POSITION as funcion
-	TRACE_LINE(tracer, "calling get position as a function");
-	volatile auto position = component::receiver.functionGetPosition();
-	tracer.trace();
 
 	while (1)
 	{
-		Board::LedNorth::toggle();
-		xpcc::delayMicroseconds(1000);
+		dispatcher.update();
+		component::sender.run();
 	}
 
 	return 0;

@@ -35,6 +35,7 @@
 #define	XPCC_LOG_LEVEL xpcc::log::DEBUG
 
 #include "receiver.hpp"
+#include "../stop_and_print_tracer.hpp"
 
 // ----------------------------------------------------------------------------
 component::Receiver::Receiver(uint8_t id, xpcc::Dispatcher *communication) :
@@ -59,7 +60,7 @@ void
 component::Receiver::actionGetPosition(const xpcc::ResponseHandle& handle)
 {
 	//XPCC_LOG_INFO << XPCC_FILE_INFO << "action get position" << xpcc::endl;
-
+	TRACE_LINE("Action get position.");
 	this->sendResponse(handle, position);
 }
 
